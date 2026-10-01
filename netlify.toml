@@ -9,6 +9,8 @@
 # Environment variables defaults (can be overridden in Netlify dashboard)
 [build.environment]
   NODE_VERSION = "20"
+  NETLIFY_DRAWER = "false"
+  NETLIFY_DEPLOY_PREVIEW_DRAWER = "false"
 
 # SPA routing: Redirect all routes to index.html with HTTP 200
 [[redirects]]

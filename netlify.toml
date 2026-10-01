@@ -1,0 +1,17 @@
+# Netlify Configuration for TaskFlow App
+# Automatically configures build settings when deployed from GitHub
+
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+# Environment variables defaults (can be overridden in Netlify dashboard)
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA routing: Redirect all routes to index.html with HTTP 200
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

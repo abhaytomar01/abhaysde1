@@ -174,8 +174,8 @@ export default function App() {
   // 1. Show Onboarding Screen if not yet completed
   if (!hasOnboarded) {
     return (
-      <div className="min-h-screen bg-[#4566EC] flex items-center justify-center p-0 sm:p-4 font-['Poppins']">
-        <div className="w-full max-w-md min-h-screen sm:min-h-[844px] bg-white sm:rounded-[36px] overflow-hidden shadow-2xl relative">
+      <div className="h-[100dvh] h-screen w-full bg-[#4566EC] flex items-center justify-center p-0 sm:p-4 font-['Poppins'] overflow-hidden">
+        <div className="w-full max-w-md h-full sm:h-[844px] sm:max-h-[92vh] bg-white sm:rounded-[36px] overflow-hidden shadow-2xl relative flex flex-col">
           <OnboardingScreen onGetStarted={handleGetStarted} />
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function App() {
       <div className="hidden lg:flex fixed top-4 right-6 z-50 bg-white/90 backdrop-blur-md border border-[#EAEAEA] p-1.5 rounded-2xl shadow-lg items-center gap-1">
         <button
           onClick={() => setViewMode('desktop')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             viewMode === 'desktop' || viewMode === 'auto'
               ? 'bg-[#4566EC] text-white shadow-sm'
               : 'text-[#717171] hover:text-[#090E23] hover:bg-slate-100'
@@ -199,7 +199,7 @@ export default function App() {
         </button>
         <button
           onClick={() => setViewMode('mobile-frame')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
             viewMode === 'mobile-frame'
               ? 'bg-[#4566EC] text-white shadow-sm'
               : 'text-[#717171] hover:text-[#090E23] hover:bg-slate-100'
@@ -240,111 +240,121 @@ export default function App() {
       )}
 
       {/* RENDER 1:1 FIGMA MOBILE UI (On mobile viewports, or when mobile frame mode is selected) */}
-      <div className={`flex items-center justify-center p-0 sm:p-4 min-h-screen ${
-        viewMode === 'mobile-frame' ? 'block' : 'lg:hidden'
+      <div className={`w-full flex items-center justify-center p-0 ${
+        viewMode === 'mobile-frame' 
+          ? 'min-h-screen sm:p-4 block' 
+          : 'h-[100dvh] h-screen sm:p-4 overflow-hidden lg:hidden'
       }`}>
-        <div className="w-full max-w-md min-h-screen sm:min-h-[844px] bg-[#FDFDFF] sm:rounded-[36px] shadow-2xl overflow-hidden relative flex flex-col pb-24 border border-slate-200/60">
-          
-          {/* Top Search Header */}
-          <HomeHeader
-            onOpenSearch={() => setIsSearching(true)}
-          />
+        <div className={`w-full max-w-md bg-[#FDFDFF] sm:rounded-[36px] shadow-2xl overflow-hidden relative flex flex-col border border-slate-200/60 ${
+          viewMode === 'mobile-frame'
+            ? 'h-[844px] max-h-[92vh]'
+            : 'h-full sm:h-[844px] sm:max-h-[92vh]'
+        }`}>
+          {/* Top Search Header (Fixed at top) */}
+          <div className="shrink-0 z-20 bg-[#FDFDFF]">
+            <HomeHeader
+              onOpenSearch={() => setIsSearching(true)}
+            />
+          </div>
 
-          {/* TAB 1: HOME SCREEN (Default Figma Screen 2) */}
-          {activeTab === 'home' && (
-            <>
-              {/* Weekly Calendar Strip (Monday to Sunday) */}
-              <WeeklyCalendarStrip
+          {/* Middle Scrollable Content (Scrolls independently while header & bottom bar stay fixed) */}
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-28">
+            {/* TAB 1: HOME SCREEN (Default Figma Screen 2) */}
+            {activeTab === 'home' && (
+              <>
+                {/* Weekly Calendar Strip (Monday to Sunday) */}
+                <WeeklyCalendarStrip
+                  selectedDate={selectedDate}
+                  onSelectDate={handleSelectDate}
+                  currentWeekMonday={currentWeekMonday}
+                  onPrevWeek={handlePrevWeek}
+                  onNextWeek={handleNextWeek}
+                />
+
+                {/* Metric Reminder Cards */}
+                <ReminderMetricCards
+                  completedCount={completedCount}
+                  openCount={openCount}
+                />
+
+                {/* Tasks Section (Figma Tasks Today & View All) */}
+                <main className="w-full px-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-[18px] font-semibold text-[#090E23]">
+                      {viewAll ? "This Week's Tasks" : "Tasks Today"}
+                    </h3>
+                    <button
+                      onClick={() => setViewAll(!viewAll)}
+                      className="text-[14px] font-medium text-[#4566EC] hover:underline cursor-pointer"
+                    >
+                      {viewAll ? 'Tasks Today' : 'View All'}
+                    </button>
+                  </div>
+
+                  {/* Loading Indicator */}
+                  {loading && (
+                    <div className="py-10 flex flex-col items-center justify-center text-[#717171] gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-[#4566EC]" />
+                      <span className="text-xs">Loading tasks...</span>
+                    </div>
+                  )}
+
+                  {/* Tasks List */}
+                  {!loading && (
+                    <div>
+                      {displayedTasks.length === 0 ? (
+                        <div className="py-12 text-center">
+                          <p className="text-[14px] font-medium text-[#090E23] mb-1">
+                            No tasks for today
+                          </p>
+                          <p className="text-[12px] text-[#717171]">
+                            Tap the + button below to add a new task.
+                          </p>
+                        </div>
+                      ) : (
+                        displayedTasks.map((task) => (
+                          <FigmaTaskItem
+                            key={task._id}
+                            task={task}
+                            onToggleStatus={handleToggleStatus}
+                            onEdit={handleOpenEditModal}
+                            onDelete={handleDelete}
+                          />
+                        ))
+                      )}
+                    </div>
+                  )}
+                </main>
+              </>
+            )}
+
+            {/* TAB 2: CALENDAR VIEW */}
+            {activeTab === 'calendar' && (
+              <CalendarTabView
                 selectedDate={selectedDate}
                 onSelectDate={handleSelectDate}
-                currentWeekMonday={currentWeekMonday}
-                onPrevWeek={handlePrevWeek}
-                onNextWeek={handleNextWeek}
+                tasks={tasks}
+                onToggleStatus={handleToggleStatus}
+                onEdit={handleOpenEditModal}
+                onDelete={handleDelete}
               />
+            )}
 
-              {/* Metric Reminder Cards */}
-              <ReminderMetricCards
-                completedCount={completedCount}
-                openCount={openCount}
+            {/* TAB 3: STATS VIEW */}
+            {activeTab === 'stats' && (
+              <StatsTabView tasks={tasks} />
+            )}
+
+            {/* TAB 4: PROFILE VIEW */}
+            {activeTab === 'profile' && (
+              <ProfileTabView
+                onResetOnboarding={() => setHasOnboarded(false)}
+                tasksCount={tasks.length}
               />
+            )}
+          </div>
 
-              {/* Tasks Section (Figma Tasks Today & View All) */}
-              <main className="w-full px-6 flex-1">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[18px] font-semibold text-[#090E23]">
-                    {viewAll ? "This Week's Tasks" : "Tasks Today"}
-                  </h3>
-                  <button
-                    onClick={() => setViewAll(!viewAll)}
-                    className="text-[14px] font-medium text-[#4566EC] hover:underline"
-                  >
-                    {viewAll ? 'Tasks Today' : 'View All'}
-                  </button>
-                </div>
-
-                {/* Loading Indicator */}
-                {loading && (
-                  <div className="py-10 flex flex-col items-center justify-center text-[#717171] gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin text-[#4566EC]" />
-                    <span className="text-xs">Loading tasks...</span>
-                  </div>
-                )}
-
-                {/* Tasks List */}
-                {!loading && (
-                  <div>
-                    {displayedTasks.length === 0 ? (
-                      <div className="py-12 text-center">
-                        <p className="text-[14px] font-medium text-[#090E23] mb-1">
-                          No tasks for today
-                        </p>
-                        <p className="text-[12px] text-[#717171]">
-                          Tap the + button below to add a new task.
-                        </p>
-                      </div>
-                    ) : (
-                      displayedTasks.map((task) => (
-                        <FigmaTaskItem
-                          key={task._id}
-                          task={task}
-                          onToggleStatus={handleToggleStatus}
-                          onEdit={handleOpenEditModal}
-                          onDelete={handleDelete}
-                        />
-                      ))
-                    )}
-                  </div>
-                )}
-              </main>
-            </>
-          )}
-
-          {/* TAB 2: CALENDAR VIEW */}
-          {activeTab === 'calendar' && (
-            <CalendarTabView
-              selectedDate={selectedDate}
-              onSelectDate={handleSelectDate}
-              tasks={tasks}
-              onToggleStatus={handleToggleStatus}
-              onEdit={handleOpenEditModal}
-              onDelete={handleDelete}
-            />
-          )}
-
-          {/* TAB 3: STATS VIEW */}
-          {activeTab === 'stats' && (
-            <StatsTabView tasks={tasks} />
-          )}
-
-          {/* TAB 4: PROFILE VIEW */}
-          {activeTab === 'profile' && (
-            <ProfileTabView
-              onResetOnboarding={() => setHasOnboarded(false)}
-              tasksCount={tasks.length}
-            />
-          )}
-
-          {/* Bottom Navigation Bar */}
+          {/* Bottom Navigation Bar (Fixed at bottom) */}
           <BottomNavBar
             activeTab={activeTab}
             onTabChange={setActiveTab}

@@ -30,20 +30,23 @@ export const FigmaTaskItem = ({ task, onToggleStatus, onEdit, onDelete }) => {
 
       {/* Main Task Item (Figma Task 1 / Task 2 / Task done) */}
       <motion.div
-        style={{ x }}
+        style={{ x, touchAction: 'pan-y' }}
         drag="x"
+        dragDirectionLock={true}
+        dragSnapToOrigin={true}
         dragConstraints={{ left: -70, right: 0 }}
-        dragElastic={0.08}
+        dragElastic={0.1}
         onDragEnd={handleDragEnd}
         animate={{ opacity: isDeleting ? 0 : 1, y: isDeleting ? -6 : 0 }}
-        className="bg-transparent py-3 flex items-center justify-between gap-3 relative z-10 select-none"
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        className="bg-transparent py-3 flex items-center justify-between gap-3 relative z-10 select-none cursor-grab active:cursor-grabbing"
       >
         {/* Checkbox (Rectangle 14) + Title */}
         <div className="flex items-center gap-3.5 flex-1 min-w-0">
           <button
             type="button"
             onClick={() => onToggleStatus(task._id)}
-            className={`w-5 h-5 rounded-[2px] border transition-all flex items-center justify-center shrink-0 ${
+            className={`w-5 h-5 rounded-[2px] border transition-all flex items-center justify-center shrink-0 cursor-pointer ${
               isCompleted
                 ? 'bg-[#4566EC] border-[#4566EC] text-white'
                 : 'bg-white border-[#4566EC] hover:bg-[#EFF2FF]'
@@ -66,15 +69,17 @@ export const FigmaTaskItem = ({ task, onToggleStatus, onEdit, onDelete }) => {
         {/* Action icons (Figma Group 6 Edit & Delete) */}
         <div className="flex items-center gap-1.5 shrink-0 text-[#C4C4C4]">
           <button
+            type="button"
             onClick={() => onDelete(task._id)}
-            className="p-1 hover:text-[#FF464D] transition-colors"
+            className="p-1.5 hover:text-[#FF464D] transition-colors cursor-pointer"
             title="Delete task"
           >
             <Trash2 className="w-4 h-4 stroke-[1.8]" />
           </button>
           <button
+            type="button"
             onClick={() => onEdit(task)}
-            className="p-1 hover:text-[#4566EC] transition-colors"
+            className="p-1.5 hover:text-[#4566EC] transition-colors cursor-pointer"
             title="Edit task"
           >
             <Edit3 className="w-4 h-4 stroke-[1.8]" />

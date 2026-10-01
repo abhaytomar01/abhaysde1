@@ -183,7 +183,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EEF2F9] font-['Poppins'] text-[#090E23]">
+    <div className="min-h-screen lg:h-auto h-[100dvh] bg-[#EEF2F9] font-['Poppins'] text-[#090E23] overflow-hidden lg:overflow-visible">
       {/* Top Floating View Mode Switcher for Desktop */}
       <div className="hidden lg:flex fixed top-4 right-6 z-50 bg-white/90 backdrop-blur-md border border-[#EAEAEA] p-1.5 rounded-2xl shadow-lg items-center gap-1">
         <button
@@ -258,7 +258,7 @@ export default function App() {
           </div>
 
           {/* Middle Scrollable Content (Scrolls independently while header & bottom bar stay fixed) */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-28">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-28 [-webkit-overflow-scrolling:touch]">
             {/* TAB 1: HOME SCREEN (Default Figma Screen 2) */}
             {activeTab === 'home' && (
               <>
